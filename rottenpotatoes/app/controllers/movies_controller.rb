@@ -64,4 +64,35 @@ class MoviesController < ApplicationController
     redirect_to movies_path
   end
 
+  # def similar
+  #   @id = params[:id]
+  #   @movie = Movie.find(@id)
+  #   @director = @movie.director
+  #   if not @director.blank?
+  #     @movies = Movie.similar_directors(@director)
+  #   else
+  #     flash[:notice] = "'#{@movie.title}' has no director info"
+  #     redirect_to movies_path
+  #   end
+  # end
+
+  def similar
+    id = params[:id]
+    @match_field = params[:field]
+
+
+
+    @similar = Movie.find(id)
+    @director = @similar.director
+    if @similar.director.nil? || @similar.director.empty?
+      flash[:warning] = "'#{@similar.title}' has no #{@match_field} info"
+      redirect_to movies_path and return
+    end
+    @movies = Movie.find(:all, :conditions => ["director = ? AND id <> ?",@similar.director,@similar.id])
+    if @movies.empty?
+      flash[:warning] = "'#{@similar.title}' has no similar movies"
+      redirect_to movies_path and return
+    end
+  end
+
 end
